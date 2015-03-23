@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="la.ipo.admin.mybatis.ResourceMapper">
+	<resultMap id="resourceMap" type="resource">
+		<id property="id" column="id" />
+		<result property="key" column="key" />
+		<result property="name" column="name" />
+		<result property="parentId" column="parent_id" />
+		<result property="parentName" column="parent_name" />
+		<result property="type" column="type" />
+		<result property="url" column="url" />
+		<result property="level" column="level" />
+		<result property="description" column="description" />
+		<result property="createDateTime" column="create_datetime" />
+		<result property="updateDateTime" column="update_datetime" />
+	</resultMap>
+	<!-- 以下与实体类的中字段一致 -->
+	<sql id="select_fields">
+		id,
+		`key`,
+		`name`,
+		parent_id,
+		(SELECT r.name FROM tbl_resource r WHERE r.id = tbl_resource.parent_id ) parent_name,
+		`type`,
+		url,
+		`level`,
+		description,
+		create_datetime,
+		update_datetime
+	</sql>
+	
+	<select id="findAll" resultMap="resourceMap">
+		SELECT
+		<include refid="select_fields" />
+		FROM tbl_resource ORDER BY `level` ASC
+	</select>
+	<select id="findAllByPage" resultMap="resourceMap">
+		SELECT
+		<include refid="select_fields" />
+		FROM tbl_resource ORDER BY `level` ASC
+	</select>
+	<select id="getByLikeName"  parameterType="String" resultMap="resourceMap">
+		SELECT
+		<include refid="select_fields" />
+		FROM tbl_resource
+		<where>
+			<if test="name != null and name != ''">
+				AND `name` LIKE '%#{name}%'
+			</if>
+		</where>
+		ORDER BY `level` ASC
+	</select>
+	<select id="countByLikeName" parameterType="String" resultType="int">
+		SELECT COUNT(0) FROM tbl_resource
+		<where>
+			<if test="name != null and name != ''">
+				AND `name` LIKE '%#{name}%'
+			</if>
+		</where>
+	</select>
+	<!-- 根据用户Id获取该用户的权限-->
+	<select id="getUserResourcesByUserId" parameterType="Long" resultMap="resourceMap">
+		SELECT 
+		<include refid="select_fields" />
+		FROM tbl_resource WHERE id in(SELECT tbl_resource_role.resource_id FROM tbl_resource_role, tbl_user_role WHERE tbl_user_role.`role_id` = tbl_resource_role.`role_id` AND tbl_user_role.`user_id` = #{userId})
+	</select>
+	<!-- 根据角色Id获取该角色的权限-->
+	<select id="getRoleResourcesByRoleId" parameterType="Long" resultMap="resourceMap">
+		SELECT 
+		<include refid="select_fields" />
+		FROM tbl_resource WHERE id in(
+		SELECT resource_id FROM
+		tbl_resource_role WHERE role_id=#{roleId})
+	</select>
+	<select id="getResourcesByEmail" parameterType="String" resultMap="resourceMap">
+		SELECT 
+		<include refid="select_fields" />
+		FROM tbl_resource WHERE id in(SELECT tbl_resource_role.resource_id  FROM tbl_resource_role, tbl_user_role, tbl_user  WHERE tbl_user_role.`role_id` = tbl_resource_role.`role_id` AND tbl_user.`id` = tbl_user_role.`user_id` AND tbl_user.email = #{email})
+	</select>
+	<!-- 新增 -->
+	<insert id="add" parameterType="resource">
+		INSERT INTO tbl_resource(
+					`name`,
+					parent_id,
+					`key`,
+					`type`,
+					url,
+					`level`,
+					description,
+					update_datetime) 
+		VALUES(
+				#{name},
+				#{parentId},
+				#{key},
+				#{type},
+				#{url},
+				#{level},
+				#{description},
+				now()
+				)
+	</insert>
+	
+	<!-- 删 -->
+	<delete id="deleteById" parameterType="Long">
+		DELETE FROM tbl_resource WHERE id = #{id}
+	</delete>
+	
+	<select id="getById" parameterType="Long" resultMap="resourceMap">
+		SELECT 
+			<include refid="select_fields" /> 
+		FROM tbl_resource WHERE id=#{id}
+	</select>
+	
+	<!-- 更新 -->
+	<update id="update" parameterType="resource">
+	    UPDATE tbl_resource
+	    SET
+	    	`name` = #{name},
+	    	parent_id = #{parentId},
+			`key` = #{key},
+			`type` = #{type},
+			url = #{url},
+			`level` = #{level},
+			description = #{description},
+			update_datetime = now()
+	   WHERE id = #{id}
+	</update>
+	
+	<!-- 增加角色和权限 -->
+	<insert id="addRoleRescourses" parameterType="RoleResource">
+	INSERT INTO tbl_resource_role(role_id, resource_id, update_datetime) VALUES (#{roleId},#{resourceId}, now())
+	</insert>
+	<delete id="deleteRoleResourceByRoleId" parameterType="Long">
+		DELETE FROM tbl_resource_role WHERE role_id=#{roleId}
+	</delete>
+</mapper>

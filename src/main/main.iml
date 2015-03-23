@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="web" name="Web">
+      <configuration>
+        <descriptors>
+          <deploymentDescriptor name="web.xml" url="file://$MODULE_DIR$/webapp/WEB-INF/web.xml" />
+        </descriptors>
+        <webroots>
+          <root url="file://$MODULE_DIR$/webapp" relative="/" />
+        </webroots>
+      </configuration>
+    </facet>
+    <facet type="Spring" name="Spring">
+      <configuration>
+        <fileset id="fileset" name="Spring Application Context" removed="false">
+          <file>file://$MODULE_DIR$/resources/spring/root-context.xml</file>
+          <file>file://$MODULE_DIR$/resources/spring/remote-servlet.xml</file>
+          <file>file://$MODULE_DIR$/resources/spring/business-config.xml</file>
+          <file>file://$MODULE_DIR$/resources/spring/mvc-core-config.xml</file>
+          <file>file://$MODULE_DIR$/resources/spring/mvc-view-config.xml</file>
+          <file>file://$MODULE_DIR$/resources/spring/spring-security.xml</file>
+          <file>file://$MODULE_DIR$/resources/spring/datasource-config.xml</file>
+        </fileset>
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/java" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="lib" level="project" />
+  </component>
+</module>

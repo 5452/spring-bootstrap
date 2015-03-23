@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	http://www.springframework.org/schema/task
+   http://www.springframework.org/schema/task/spring-task-4.0.xsd">
+	<import resource="business-config.xml"/>
+	<import resource="spring-security.xml"/>
+	<!--
+		CSRF protection. Here we only include the CsrfFilter instead of all of Spring Security.
+		See http://docs.spring.io/spring-security/site/docs/3.2.x/reference/htmlsingle/#csrf for more information on
+		Spring Security's CSRF protection
+	-->
+	<bean id="csrfFilter" class="org.springframework.security.web.csrf.CsrfFilter">
+		<constructor-arg>
+			<bean class="org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository"/>
+		</constructor-arg>
+	</bean>
+	<!--
+		Provides automatic CSRF token inclusion when using Spring MVC Form tags or Thymeleaf. See
+		http://localhost:8080/#forms and form.jsp for examples
+	-->
+	<bean id="requestDataValueProcessor" class="org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor"/>
+	<task:annotation-driven/>
+	<bean class="la.ipo.quartz.QuartzJobSchedulingListener" />
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="jobFactory">
+			<bean class="la.ipo.quartz.SpringQuartzJobFactory"/>
+		</property>
+	</bean>
+	<bean id="captchaProducer" class="com.google.code.kaptcha.impl.DefaultKaptcha">
+        <property name="config">
+                <bean class="com.google.code.kaptcha.util.Config">
+                        <constructor-arg type="java.util.Properties">
+                                <props>
+                                        <prop key="kaptcha.image.width">300</prop> 
+                                        <prop key="kaptcha.image.height">50</prop>
+                                        <prop key="kaptcha.textproducer.char.length">6</prop>
+                                </props>
+                        </constructor-arg>
+                </bean>
+        </property>
+	</bean>
+</beans>

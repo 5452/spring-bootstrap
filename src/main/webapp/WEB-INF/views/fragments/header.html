@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head th:fragment="header_tag">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="../../../resources/css/style.css"  th:href="@{/resources/css/style.css}" />
+    <link rel="stylesheet" type="text/css" href="../../../resources/css/header.css"  th:href="@{/resources/css/header.css}" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js" th:src="@{/web/jquery/2.1.0/jquery.js}"></script>
+    
+    <title th:if="${session.user == null}">IPOLA － IPLA</title>
+    <title th:if="${session.user != null}" th:text="${session.user.name} + ' - IPOLA'">ipola － ipla</title>
+</head>
+<body>
+</body>
+</html>
+
+
+
+

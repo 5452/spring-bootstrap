@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="la.ipo.admin.mybatis.UserMapper">
+
+	<resultMap id="userMap" type="user">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="email" column="email" />
+		<result property="role" column="role" />
+		<result property="password" column="password" />
+		<result property="createDateTime" column="create_datetime" />
+		<result property="updateDateTime" column="update_datetime" />
+	</resultMap>
+	<sql id="select_fields">
+		id,
+		`name`,
+		`email`,
+		`password`,
+		(SELECT t1.role FROM (SELECT tbl_user_role.user_id, tbl_role.`name` role FROM tbl_role INNER JOIN tbl_user_role ON tbl_role.id = tbl_user_role.role_id) t1 WHERE t1.user_id = tbl_user.id) role,
+		create_datetime,
+		update_datetime
+	</sql>
+	<select id="findAllByPage" resultMap="userMap">
+		SELECT <include refid="select_fields" /> FROM tbl_user WHERE `status` = 1
+	</select>
+	<select id="getById" parameterType="Long" resultMap="userMap">
+		SELECT <include refid="select_fields" /> FROM tbl_user WHERE id = #{id} AND `status` = 1
+	</select>
+	<select id="getByEmail" parameterType="String" resultMap="userMap">
+		SELECT <include refid="select_fields" /> FROM tbl_user WHERE email=#{email} AND `status` = 1
+	</select>
+	<select id="query" parameterType="java.util.Map" resultMap="userMap">
+		SELECT <include refid="select_fields" /> FROM tbl_user
+		<where>
+			<if test="name != null and name != ''">
+				(email LIKE '%${name}%' OR name  LIKE '%${name}%') 
+			</if>
+			AND `status` = 1
+		</where>
+	</select>
+	<select id="getByParams" parameterType="user" resultMap="userMap">
+		SELECT <include refid="select_fields" /> FROM tbl_user
+		<where>
+			<if test="id != null and id > 0">
+				AND id=#{id}
+			</if>
+			<if test="email != null and email != ''">
+				AND email=#{email}
+			</if>
+			<if test="name != null and name != ''">
+				AND name=#{name}
+			</if>
+			AND `status` = 1
+		</where>
+	</select>
+	<insert id="add" parameterType="user">
+		<!-- <selectKey resultType="Long" keyProperty="id" order="AFTER">  
+	        SELECT LAST_INSERT_ID()   
+	    </selectKey> -->
+		INSERT INTO tbl_user(name,email,password, update_datetime) VALUES(#{name},#{email},#{password}, #{updateDateTime})
+	</insert>
+	<update id="update" parameterType="user">
+		UPDATE `tbl_user`
+		SET `name` = #{name},
+			<if test="password != null and password != ''">
+				`password` = #{password},
+			</if>
+		  update_datetime = now()
+		WHERE `id` = #{id} AND `status` = 1
+	</update>
+	<update id="delete" parameterType="Long">
+		UPDATE `tbl_user`
+		SET `status` = -1
+		WHERE `id` = #{id}
+	</update>
+</mapper>

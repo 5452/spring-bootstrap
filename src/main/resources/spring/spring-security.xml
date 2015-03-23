@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+                                 http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+                                 http://www.springframework.org/schema/security
+                                 http://www.springframework.org/schema/security/spring-security-3.2.xsd">           
+	<!-- <global-method-security secured-annotations="enabled" /> -->
+	
+	<http pattern="/" security="none" />
+	<http pattern="/captcha" security="none" />
+	<http pattern="/fragments/**" security="none" />
+	<http pattern="/web/**" security="none"  />
+	<http pattern="/resources/**" security="none"  />
+	<http pattern="/login*" security="none" />
+	<http use-expressions="true" entry-point-ref="loginUrlAuthenticationEntryPoint" access-denied-page="/deny">
+		<intercept-url pattern="/**" access="isAuthenticated()" />
+		<form-login login-page="/login" default-target-url="/" />
+		<logout logout-success-url="/login" logout-url="/logout" invalidate-session="true" delete-cookies="JSESSIONID" />
+		<!-- Concurrent Session Control -->
+		<session-management session-fixation-protection="none" invalid-session-url="/login" >
+			<concurrency-control max-sessions="1" />
+		</session-management>
+		<!--  
+     		Spring Sercurity要从数据库中获取用户、权限、资源来实现权限管理，需要自定义过滤器，
+	     　并且该过滤器必须在spring Security执行FILTER_SECURITY_INTERCEPTOR过滤器之前执行，
+	    　 因为该框架实现权限管理实质就是在执行action之前先执行它框架中的为权限管理制定的一系列Fliter。
+	    	我们自定的这个SercurityFilter类要继承AbstractSecurityInterceptor 接口和Filter类（负责传递一系列的Filter）,
+			因为我们是从数据库中获取权限验证的数据，所以还要重写FilterInvocationSecurityMetadataSource 接口，
+			AccessDecisionManager 接口，UserDetailsService 接口，只要重写了这3个接口，
+			然后再spring配置文件中做相应的配置，项目启动启动后，我们进行资源请求，就自动会去执行我们重定义的类进行权限判断。
+        -->
+    	<custom-filter ref="customSecurityFilter" before="FILTER_SECURITY_INTERCEPTOR"/>
+	</http>
+	<!-- 未登录的切入点 -->
+    <beans:bean id="loginUrlAuthenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+        <beans:property name="loginFormUrl" value="/login"></beans:property>
+    </beans:bean>
+	<beans:bean name="bcryptEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
+	<!-- 实现了UserDetailsService的Bean 用户拥有的权限：登录后取得用户所保有的权限信息
+    	//认证管理器   
+    -->
+	<authentication-manager alias="customAuthenticationManager">
+		<authentication-provider user-service-ref="customUserDetailService">
+			<password-encoder hash="bcrypt"/>
+		</authentication-provider>
+	</authentication-manager>
+</beans:beans>

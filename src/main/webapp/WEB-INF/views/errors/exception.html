@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head th:replace="fragments/header :: header_tag">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../../../resources/css/style.css"  th:href="@{/resources/css/style.css}" />
+    <link rel="stylesheet" type="text/css" href="../../../resources/css/header.css"  th:href="@{/resources/css/header.css}" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js" th:src="@{/web/jquery/2.1.0/jquery.js}"></script>
+    <title>出现错误 － ipla</title>
+</head>
+<body>
+出现错误:
+<div class="row center yahei Bwhite" style="height: 100px;padding-top: 20px;" th:text="${exception.message}">
+	错误内容
+</div>
+</body>
+</html>

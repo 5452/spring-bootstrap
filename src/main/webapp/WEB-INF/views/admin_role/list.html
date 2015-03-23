@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3" lang="zh">
+<head th:replace="fragments/header :: header_tag">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../../../resources/css/style.css"  th:href="@{/resources/css/style.css}" />
+    <link rel="stylesheet" type="text/css" href="../../../resources/css/header.css"  th:href="@{/resources/css/header.css}" />
+    <title>ipla － ipla</title>
+</head>
+<body>
+<form name="pagedForm" action="" method="post" th:action="@{/admin_role/list}">
+<div class="row center yahei Bwhite" style="padding-top: 135px;">
+	<table style="width:50%;">
+		<thead>
+	      <tr>
+	        <th>编码</th>
+	        <th>名称</th>
+	        <th>描述</th>
+	        <th>添加时间</th>
+	        <th>更新时间</th>
+	        <th>操作</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+	    	<tr th:each="role : ${roleList}">
+		        <td th:text="${{role.key}}">编码</td>
+		        <td th:text="${{role.name}}">名称</td>
+		        <td th:text="${{role.description}}">描述</td>
+		        <td th:text="${{role.createDateTime}}">2014-03-27</td>
+		        <td th:text="${{role.updateDateTime}}">2014-03-27</td>
+		        <td><a class="assign_permission" sec:authorize="hasRole('sys_role_assign')" href="assign.html" th:href="@{'/admin_role/assign?id=' + ${{role.id}}}">分配权限</a>&nbsp;&nbsp;<a sec:authorize="hasRole('sys_role_edit')" href="edit.html" th:href="@{'/admin_role/edit?id=' + ${{role.id}}}">编辑</a>&nbsp;&nbsp;<a sec:authorize="hasRole('sys_role_delete')" th:href="@{'/admin_role/delete?id=' + ${{role.id}}}">删除</a></td>
+		      </tr>
+	    </tbody>
+	</table>
+</div>
+<div th:utext="${pageContext.pagedView}"></div>
+<div id="pop_up"></div>
+</form>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js" th:src="@{/web/jquery/2.1.0/jquery.js}"></script>
+<script type="text/javascript">
+	$(function(){
+		$('.assign_permission').bind('click', function(event) {
+			event.preventDefault();
+			var url = $(this).attr('href');
+			var h_sp1 = 400;
+			 var w_sp1 = 350;
+			 var iTop2 = (window.screen.availHeight - 20 - h_sp1) / 2;
+			 var iLeft2 = (window.screen.availWidth - 10 - w_sp1) / 2;
+			 var params = 'menubar:no;dialogHeight=' + h_sp1 + 'px;dialogWidth=' + w_sp1 + 'px;dialogLeft=' + iLeft2 + 'px;dialogTop=' + iTop2 + 'px;resizable=yes;scrollbars=0;resizeable=0;center=yes;location:no;status:no;scroll:no'
+			 window.showModalDialog(url, window, params);
+		});
+	})
+</script>
+</body>
+</html>

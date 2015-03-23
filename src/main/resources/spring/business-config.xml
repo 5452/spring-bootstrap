@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Repository and Service layers -->
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa-4.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+	<!-- ========================= RESOURCE DEFINITIONS ========================= -->
+
+	<!-- import the dataSource definition -->
+	<import resource="datasource-config.xml" />
+
+	<context:component-scan base-package="la.ipo">
+		<context:exclude-filter type="regex" expression=".*Controller$" />
+	</context:component-scan>
+	<!-- MyBatis -->
+	<!-- Pagination Plugin -->
+	<bean id="paginationInterceptor" class="la.ipo.pagination.PaginationInterceptor">
+		<!-- <property name="properties">
+			<props>
+				<prop key="interceptMethodRegex">.*ByPage.*|.*selectByExample.*</prop>
+			</props>
+		</property> -->
+		<property name="interceptMethodRegex" value=".*ByPage.*|.*selectByExample.*" />
+	</bean>
+	<!-- admin数据配置 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="plugins">
+			<array>
+				<ref bean="paginationInterceptor" />
+			</array>
+		</property>
+		<!-- 指定sqlMapConfig总配置文件 -->
+		<property name="configLocation" value="classpath:spring/mybatis-config.xml" />
+		<property name="typeAliasesPackage" value="la.ipo.admin.model" />
+		<!-- custom typeHandler scanning package -->
+		<property name="typeHandlersPackage" value="la.ipo.repository.mybatis.handler" />
+		<!--指定实体类映射文件，可以指定同时指定某一包以及子包下面的所有配置文件，mapperLocations和configLocation有一个即可， 当需要为实体类指定别名时，可指定configLocation属性，再在mybatis总配置文件中采用mapper引入实体类映射文件 -->
+		<property name="mapperLocations" value="classpath:la/ipo/admin/mapper/*.xml" />
+	</bean>
+	<!-- scan for mappers and let them be autowired -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+    	<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <property name="basePackage" value="la.ipo.admin.mybatis" />
+    </bean>
+    <!-- 配置事务管理 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+		<qualifier value="admin" />
+	</bean>
+	<!-- 声明式事务注解 需加上@Transactional -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	
+	<!-- 前台数据配置 -->
+	<bean id="sqlSessionFactoryFront" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSourceFront" />
+		<property name="plugins">
+			<array>
+				<ref bean="paginationInterceptor" />
+			</array>
+		</property>
+		<!-- 指定sqlMapConfig总配置文件 -->
+		<property name="configLocation" value="classpath:spring/mybatis-config.xml" />
+		<property name="typeAliasesPackage" value="la.ipo.model" />
+		<!-- custom typeHandler scanning package -->
+		<property name="typeHandlersPackage" value="la.ipo.repository.mybatis.handler" />
+		<!--指定实体类映射文件，可以指定同时指定某一包以及子包下面的所有配置文件，mapperLocations和configLocation有一个即可， 当需要为实体类指定别名时，可指定configLocation属性，再在mybatis总配置文件中采用mapper引入实体类映射文件 -->
+		<property name="mapperLocations" value="classpath:la/ipo/mapper/*.xml" />
+	</bean>
+	<!-- scan for mappers and let them be autowired -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+    	<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryFront"/>
+        <property name="basePackage" value="la.ipo.repository.mybatis" />
+    </bean>
+    <!-- 配置事务管理 -->
+	<bean id="transactionManagerFront" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSourceFront" />
+		<qualifier value="front" />
+	</bean>
+	<!-- 声明式事务注解 需加上@Transactional -->
+	<tx:annotation-driven transaction-manager="transactionManagerFront" />
+	
+	<!-- <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="10" />
+		<property name="maxPoolSize" value="32" />
+		<property name="queueCapacity" value="50" />
+		<property name="keepAliveSeconds" value="1800" />
+	</bean> -->
+	
+	<!-- redis配置 -->
+	<bean id="connectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory" p:host-name="${redis.host}" p:port="${redis.port}" p:password="${redis.password}"/>
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate"  p:connection-factory-ref="connectionFactory"/>
+</beans>

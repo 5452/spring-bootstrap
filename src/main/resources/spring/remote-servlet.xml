@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean id="accountService" class="la.ipo.user.account.server.AccountServiceImpl"></bean>
+	<bean name="/account" class="org.springframework.remoting.caucho.HessianServiceExporter">
+		<property name="service" ref="accountService"/>
+		<property name="serviceInterface" value="la.ipo.user.account.client.AccountService"/>
+	</bean>
+	<bean name="/transaction" class="org.springframework.remoting.caucho.HessianServiceExporter">
+		<property name="service" ref="accountService"/>
+		<property name="serviceInterface" value="la.ipo.user.account.client.AccountService"/>
+	</bean>
+</beans>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3" lang="zh">
+<head th:replace="fragments/header :: header_tag">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../../../resources/css/style.css"  th:href="@{/resources/css/style.css}" />
+    <link rel="stylesheet" type="text/css" href="../../../resources/css/header.css"  th:href="@{/resources/css/header.css}" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js" th:src="@{/web/jquery/2.1.0/jquery.js}"></script>
+    <title>ipla － ipla</title>
+</head>
+<body>
+<form name="pagedForm" action="" method="post" th:action="@{/admin_resource/list}">
+<div class="row center yahei Bwhite" style="padding-top: 135px;">
+	<table style="width:75%;">
+		<thead>
+	      <tr>
+	        <th>编号</th>
+	        <th>名称</th>
+	        <th>URL</th>
+	        <th>父级资源</th>
+	        <th>添加时间</th>
+	        <th>更新时间</th>
+	        <th>操作</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+	    	<tr th:each="resource : ${resourceList}">
+	    		<td th:text="${{resource.key}}">编号</td>
+		        <td th:text="${{resource.name}}">名称</td>
+		        <td th:text="${{resource.url}}">/resource</td>
+		        <td th:text="${{resource.parentName}}">父级资源</td>
+		        <td th:text="${{resource.createDateTime}}">2014-03-27</td>
+		        <td th:text="${{resource.updateDateTime}}">2014-03-27</td>
+		        <td>&nbsp;&nbsp;&nbsp;<a sec:authorize="hasRole('sys_resource_delete')" th:href="@{'/admin_resource/delete?id=' + ${{resource.id}}}">删除</a></td>
+		      </tr>
+	    </tbody>
+	</table>
+</div>
+<div th:utext="${pageContext.pagedView}"></div>
+</form>
+</body>
+</html>

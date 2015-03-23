@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head th:replace="fragments/header :: header_tag">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../../../resources/css/style.css"  th:href="@{/resources/css/style.css}" />
+    <link rel="stylesheet" type="text/css" href="../../../resources/css/header.css"  th:href="@{/resources/css/header.css}" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js" th:src="@{/web/jquery/2.1.0/jquery.js}"></script>
+    <title>ipla － ipla</title>
+</head>
+<body>
+<div class="row center yahei Bwhite" style="height: 100px;padding-top: 135px;">
+	<form th:object="${user}" th:action="@{${user.new} ? '/admin_user/add' : '/admin_user/edit'}" action="list.html" method="POST">
+		<table style="width:75%;">
+		    <tbody>
+		    	<tr>
+			        <td>用户名：<input type="text" value="测试用户" th:field="*{name}" /><input th:unless="${user.new}" type="hidden" th:field="*{id}"  /></td>
+			        <td>邮箱：<input type="text" value="ceshi@test.com" th:field="${user.email}" /></td>
+			        <td>密码：<input name="password" type="password" value="" />（不修改密码请留白）</td>
+			        <td>
+			        	<select name="roleId">
+			        		<option th:each="role : ${roles}" th:text="${role.name}" th:value="${role.id}"></option>
+			        	</select>
+			        </td>
+			        <td><button th:text="确定" type="submit">Save</button></td>
+			      </tr>
+		    </tbody>
+		</table>
+	</form>
+</div>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="la.ipo.admin.mybatis.RoleMapper">
+	<resultMap id="roleMap" type="role">
+		<id property="id" column="id" />
+		<result property="key" column="key" />
+		<result property="name" column="name" />
+		<result property="description" column="description" />
+		<result property="createDateTime" column="create_datetime" />
+		<result property="updateDateTime" column="update_datetime" />
+	</resultMap>
+	<resultMap type="userRole" id="userRoleMap">
+		<id property="userId" column="user_id" />
+		<id property="roleId" column="role_id" />
+		<result property="createDateTime" column="create_datetime" />
+		<result property="updateDateTime" column="update_datetime" />
+	</resultMap>
+	<sql id="select_fields">
+		id,
+		`key`,
+		name,
+		description,
+		create_datetime,
+		update_datetime
+	</sql>
+	<select id="getByLikeName" parameterType="String" resultMap="roleMap">
+		SELECT
+		<include refid="select_fields" />
+		FROM tbl_role
+		<where>
+			<if test="name != null and name != ''">
+				AND name LIKE '%#{name}%'
+			</if>
+			AND `status` = 1
+		</where>
+	</select>
+	<select id="countByLikeName" resultType="int" parameterType="role">
+		SELECT COUNT(0) FROM tbl_role
+		<where>
+			<if test="name != null and name != ''">
+				AND name LIKE '%#{name}%'
+			</if>
+			AND `status` = 1
+		</where>
+	</select>
+	<select id="findAllByPage" resultMap="roleMap">
+		SELECT
+		<include refid="select_fields" />
+		FROM tbl_role WHERE `status` = 1
+	</select>
+	<insert id="add" parameterType="role">
+		INSERT INTO tbl_role( 
+		name,
+		`key`,
+		description,
+		update_datetime
+		)
+		VALUES (
+		#{name},
+		#{key},
+		#{description},
+		now()
+		)
+	</insert>
+	<update id="deleteRoleById" parameterType="Long">
+		UPDATE tbl_role SET `status` = -1 WHERE id=#{id}
+	</update>
+	<select id="getRoleById" parameterType="Long" resultMap="roleMap">
+		SELECT
+		<include refid="select_fields" />
+		FROM tbl_role WHERE id=#{id} AND `status` = 1
+	</select>
+	<update id="updateRoleById" parameterType="role">
+		UPDATE tbl_role
+		<set>
+				name=#{name},
+				`key`=#{key},
+				description=#{description},
+				update_datetime = now()
+		</set>
+		where id=#{id} AND `status` = 1
+	</update>
+	<select id="findRolesByUserId" parameterType="Long" resultMap="roleMap">
+		SELECT
+		<include refid="select_fields" />
+		FROM tbl_role WHERE id in (SELECT role_id FROM tbl_user_role WHERE user_id=#{id}) AND `status` = 1
+	</select>
+	<select id="findUserRolesByRoleId" parameterType="Long" resultType="userRole">
+		SELECT user_id, role_id, create_datetime, update_datetime FROM tbl_user_role WHERE role_id = #{roleId}
+	</select>
+	<insert id="addUserRole" parameterType="userRole">
+		INSERT INTO tbl_user_role(user_id,role_id) VALUES (#{userId},#{roleId})
+	</insert>
+	<delete id="deleteUserRoleByUserId" parameterType="Long">
+		DELETE FROM tbl_user_role WHERE user_id=#{userId}
+	</delete>
+	<update id="updateUserRoleByUserId" parameterType="userRole">
+		UPDATE tbl_user_role SET role_id = #{roleId}, update_datetime = now() WHERE user_id=#{userId}
+	</update>
+</mapper>
